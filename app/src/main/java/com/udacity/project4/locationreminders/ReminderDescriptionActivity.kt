@@ -5,9 +5,13 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import com.udacity.project4.R
+import com.udacity.project4.authentication.AuthenticationActivity
+import com.udacity.project4.authentication.AuthenticationViewModel
 import com.udacity.project4.databinding.ActivityReminderDescriptionBinding
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import org.koin.android.ext.android.inject
 
 /**
  * Activity that displays the reminder details after the user clicks on the notification
@@ -24,7 +28,7 @@ class ReminderDescriptionActivity : AppCompatActivity() {
             return intent
         }
     }
-
+    private val authenticationViewModel by inject<AuthenticationViewModel>()
     private lateinit var binding: ActivityReminderDescriptionBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +36,15 @@ class ReminderDescriptionActivity : AppCompatActivity() {
             this,
             R.layout.activity_reminder_description
         )
-//        TODO: Add the implementation of the reminder details
+        authenticationViewModel.authenticationState.observe(this, Observer { authState ->
+            if(authState == AuthenticationViewModel.AuthenticationState.UNAUTHENTICATED){
+                val intent = Intent(this, AuthenticationActivity::class.java)
+                startActivity(intent)
+            }
+        })
+        val reminderDataItem = intent.getSerializableExtra(EXTRA_ReminderDataItem) as ReminderDataItem
+
+        binding.reminderDataItem = reminderDataItem
+        binding.lifecycleOwner = this
     }
 }

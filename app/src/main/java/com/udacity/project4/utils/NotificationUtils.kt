@@ -26,7 +26,7 @@ fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
             name,
-            NotificationManager.IMPORTANCE_DEFAULT
+            NotificationManager.IMPORTANCE_HIGH
         )
         notificationManager.createNotificationChannel(channel)
     }
@@ -42,7 +42,7 @@ fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
 
 //    build the notification object with the data to be shown
     val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-        .setSmallIcon(R.mipmap.ic_launcher)
+        .setSmallIcon(R.drawable.map)
         .setContentTitle(reminderDataItem.title)
         .setContentText(reminderDataItem.location)
         .setContentIntent(notificationPendingIntent)

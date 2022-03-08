@@ -25,6 +25,64 @@ import org.junit.Test
 @SmallTest
 class RemindersDaoTest {
 
-//    TODO: Add testing implementation to the RemindersDao.kt
+    private lateinit var db: RemindersDatabase
 
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
+
+    @Before
+    fun setupDb() {
+        db = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            RemindersDatabase::class.java
+        ).build()
+    }
+
+    @After
+    fun cleanupDb() {
+        db.close()
+    }
+
+    @Test
+    fun saveReminder() = runBlockingTest {
+        db.reminderDao()
+            .saveReminder(
+                ReminderDTO(
+                    "Title Test",
+                    "Description Test",
+                    "Location Test",
+                    0.0,
+                    0.0
+                )
+            )
+
+        val retrievedReminder = db.reminderDao().getReminders()
+        assertThat(retrievedReminder.isNotEmpty(), `is`(true))
+    }
+
+    @Test
+    fun getReminderById() = runBlockingTest {
+        val newReminder = ReminderDTO("Title Test", "Description Test", "Location Test", 0.0, 0.0)
+        db.reminderDao().saveReminder(newReminder)
+
+        val retrievedReminder = db.reminderDao().getReminderById(newReminder.id)
+
+        assertThat(retrievedReminder as ReminderDTO, notNullValue())
+        assertThat(retrievedReminder.id, `is`(newReminder.id))
+        assertThat(retrievedReminder.title, `is`(newReminder.title))
+        assertThat(retrievedReminder.description, `is`(newReminder.description))
+        assertThat(retrievedReminder.location, `is`(newReminder.location))
+        assertThat(retrievedReminder.latitude, `is`(newReminder.latitude))
+        assertThat(retrievedReminder.longitude, `is`(newReminder.longitude))
+    }
+
+    @Test
+    fun deleteAllReminders() = runBlockingTest {
+        db.reminderDao().saveReminder(ReminderDTO("Title Test", "Description Test", "Location Test", 0.0, 0.0))
+
+        db.reminderDao().deleteAllReminders()
+        val emptyReminder = db.reminderDao().getReminders()
+
+        assertThat(emptyReminder.isEmpty(), `is`(true))
+    }
 }

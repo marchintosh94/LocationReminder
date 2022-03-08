@@ -1,9 +1,9 @@
-package com.udacity.project4.locationreminders.data
+package com.udacity.project4.locationreminders.data.local
 
+import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
 
-//Use FakeDataSource that acts as a test double to the LocalDataSource
 class FakeDataSource : ReminderDataSource {
 
     var shouldReturnError = false
@@ -12,11 +12,12 @@ class FakeDataSource : ReminderDataSource {
     fun setReturnError(value: Boolean) {
         shouldReturnError = value
     }
+
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        return if (shouldReturnError) {
-            Result.Error("Error on getReminders")
+        if (shouldReturnError) {
+            return Result.Error("Test Error: getReminders")
         } else {
-            Result.Success(reminders)
+            return Result.Success(reminders)
         }
     }
 
@@ -26,7 +27,7 @@ class FakeDataSource : ReminderDataSource {
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
         if (shouldReturnError) {
-            return Result.Error("Error on getReminder")
+            return Result.Error("Test Error: getReminder")
         } else {
             val reminder = reminders.find{
                 it.id == id
@@ -35,13 +36,10 @@ class FakeDataSource : ReminderDataSource {
                 return Result.Success(reminder)
             }
         }
-        return Result.Error("Error: not found with id => $id")
-
+        return Result.Error("Test Error: getReminder for id $id not found")
     }
 
     override suspend fun deleteAllReminders() {
         reminders.clear()
     }
-
-
 }
