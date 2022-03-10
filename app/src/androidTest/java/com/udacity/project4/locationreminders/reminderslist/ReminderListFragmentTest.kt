@@ -10,6 +10,7 @@ import androidx.navigation.Navigation
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
@@ -21,8 +22,12 @@ import com.udacity.project4.R
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.FakeDataSource
+import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.util.monitorFragment
+import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -44,6 +49,7 @@ class ReminderListFragmentTest {
 
     private lateinit var datasource: ReminderDataSource
     private lateinit var appContext: Application
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     val testReminder = ReminderDTO(
         "Title Test",
@@ -80,6 +86,21 @@ class ReminderListFragmentTest {
         }
     }
 
+    @Before
+    fun registerIdlingResource(): Unit = IdlingRegistry.getInstance().run{
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+    }
+
+    /**
+     * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
+     */
+    @After
+    fun unregisterIdlingResource(): Unit = IdlingRegistry.getInstance().run {
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+    }
+
     @Test
     fun emptyReminderScreen_display_error_text() {
         runBlocking {
@@ -87,6 +108,7 @@ class ReminderListFragmentTest {
         }
         val scenario =
             launchFragmentInContainer<ReminderListFragment>(Bundle.EMPTY, R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(scenario)
         val navController = mock(NavController::class.java)
 
         scenario.onFragment { Navigation.setViewNavController(it.view!!, navController) }
@@ -105,6 +127,7 @@ class ReminderListFragmentTest {
     fun savedReminders_display_on_screen() {
         val scenario =
             launchFragmentInContainer<ReminderListFragment>(Bundle.EMPTY, R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(scenario)
         val navController = mock(NavController::class.java)
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
@@ -123,6 +146,7 @@ class ReminderListFragmentTest {
     fun fabNavigation_click_navigates_to_new_reminder() {
         val scenario =
             launchFragmentInContainer<ReminderListFragment>(Bundle.EMPTY, R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(scenario)
         val navController = Mockito.mock(NavController::class.java)
 
         scenario.onFragment {

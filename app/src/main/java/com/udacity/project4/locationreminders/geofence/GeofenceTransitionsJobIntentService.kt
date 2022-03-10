@@ -48,28 +48,30 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
     }
 
     private fun sendNotification(triggeringGeofences: List<Geofence>) {
-        val requestId = triggeringGeofences.last().requestId
-        //Get the local repository instance
-        val remindersRepository: ReminderDataSource by inject()
-        // Interaction to the repository has to be through a coroutine scope
-        CoroutineScope(coroutineContext).launch(SupervisorJob()) {
-            //get the reminder with the request id
-            val result = remindersRepository.getReminder(requestId)
-            if (result is Result.Success<ReminderDTO>) {
-                val reminderDTO = result.data
-                //send a notification to the user with the reminder details
-                sendNotification(
-                    this@GeofenceTransitionsJobIntentService, ReminderDataItem(
-                        reminderDTO.title,
-                        reminderDTO.description,
-                        reminderDTO.location,
-                        reminderDTO.latitude,
-                        reminderDTO.longitude,
-                        reminderDTO.id
+        triggeringGeofences.forEach { geofance ->
+            val requestId = geofance.requestId
+            //Get the local repository instance
+            val remindersRepository: ReminderDataSource by inject()
+            // Interaction to the repository has to be through a coroutine scope
+            CoroutineScope(coroutineContext).launch(SupervisorJob()) {
+                //get the reminder with the request id
+                val result = remindersRepository.getReminder(requestId)
+                if (result is Result.Success<ReminderDTO>) {
+                    val reminderDTO = result.data
+                    //send a notification to the user with the reminder details
+                    sendNotification(
+                        this@GeofenceTransitionsJobIntentService, ReminderDataItem(
+                            reminderDTO.title,
+                            reminderDTO.description,
+                            reminderDTO.location,
+                            reminderDTO.latitude,
+                            reminderDTO.longitude,
+                            reminderDTO.id
+                        )
                     )
-                )
-            } else {
-                Log.d("TEST", "SOME ISSUE")
+                } else {
+                    Log.d("TEST", "SOME ISSUE")
+                }
             }
         }
     }
