@@ -1,14 +1,18 @@
 package com.udacity.project4
 
+import android.app.Activity
 import android.app.Application
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.udacity.project4.authentication.AuthenticationViewModel
@@ -23,6 +27,7 @@ import com.udacity.project4.util.monitorActivity
 import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.core.Is.`is`
+import org.hamcrest.core.IsNot.not
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -99,6 +104,15 @@ class RemindersActivityTest :
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
     }
 
+    // get activity context
+    private fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity? {
+        var activity: Activity? = null
+        activityScenario.onActivity {
+            activity = it
+        }
+        return activity
+    }
+
     @Test
     fun reminderList_enter_text_and_location() {
 
@@ -108,12 +122,12 @@ class RemindersActivityTest :
         //init new reminder
         Espresso.onView(ViewMatchers.withId(R.id.addReminderFAB)).perform(ViewActions.click())
         Espresso.onView(ViewMatchers.withId(R.id.reminderTitle))
-            .perform(ViewActions.replaceText("Test Title"))
+            .perform(ViewActions.typeText("Test Title"))
             .check(ViewAssertions.matches(ViewMatchers.withText("Test Title")))
         Espresso.onView(ViewMatchers.withId(R.id.reminderDescription))
-            .perform(ViewActions.replaceText("Test Description"))
+            .perform(ViewActions.typeText("Test Description"))
             .check(ViewAssertions.matches(ViewMatchers.withText("Test Description")))
-
+        Espresso.closeSoftKeyboard()
         //Sleep method is called only to see the the screen
         Thread.sleep(1000)
 
@@ -129,6 +143,11 @@ class RemindersActivityTest :
 
         //Save reminder
         Espresso.onView(ViewMatchers.withId(R.id.saveReminder)).perform(ViewActions.click())
+        // Check that the toast is displayed
+        Espresso.onView(withText(R.string.reminder_saved))
+            .inRoot(withDecorView(not((getActivity(activityScenario)?.window?.decorView)))).check(
+                ViewAssertions.matches(ViewMatchers.isDisplayed()))
+
 
         Espresso.onView(ViewMatchers.withText("Test Title"))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))

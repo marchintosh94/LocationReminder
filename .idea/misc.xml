@@ -13,6 +13,10 @@
         <entry key="..\:/www/Corsi/Udacity/Android/Apps/FinalProjects/Module5/LocationReminder/app/src/main/res/layout/sign_in.xml" value="0.33" />
         <entry key="..\:/www/Corsi/Udacity/Android/Apps/FinalProjects/Module5/LocationReminder/app/src/main/res/menu/main_menu.xml" value="0.18802083333333333" />
         <entry key="..\:/www/Corsi/Udacity/Android/Apps/FinalProjects/Module5/LocationReminder/app/src/main/res/menu/map_options.xml" value="0.18802083333333333" />
+        <entry key="app/src/main/res/drawable/ic_location.xml" value="0.1875" />
+        <entry key="app/src/main/res/drawable/ic_round_settings_applications_24.xml" value="0.1875" />
+        <entry key="app/src/main/res/layout/fragment_save_reminder.xml" value="0.15172101449275363" />
+        <entry key="app/src/main/res/layout/fragment_select_location.xml" value="0.1961015948021264" />
       </map>
     </option>
   </component>
