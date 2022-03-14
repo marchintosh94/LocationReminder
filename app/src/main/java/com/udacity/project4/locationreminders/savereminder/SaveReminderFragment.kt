@@ -81,9 +81,8 @@ class SaveReminderFragment : BaseFragment() {
 
         binding.saveReminder.setOnClickListener {
             val reminder = _viewModel.getReminderDataItem()
-            checkPermissionsAndStartGeofencing()
             if (_viewModel.validateEnteredData(reminder)) {
-                addGeofenceAndSaveReminder(reminder)
+                checkPermissionsAndStartGeofencing()
             }
         }
     }
@@ -196,6 +195,7 @@ class SaveReminderFragment : BaseFragment() {
         locationSettingsResponseTask.addOnCompleteListener {
             if ( it.isSuccessful ) {
                 Log.i("CheckDeviceLocation", "Granted")
+                addGeofenceAndSaveReminder(_viewModel.getReminderDataItem())
             }
         }
     }
@@ -232,6 +232,7 @@ class SaveReminderFragment : BaseFragment() {
                         addOnSuccessListener {
                             Log.i("Added Geofence", geofence.requestId)
                             _viewModel.validateAndSaveReminder(reminder)
+                            _viewModel.onClear()
                         }
                         addOnFailureListener {
                             if ((it.message != null)) {
